@@ -1,15 +1,14 @@
-
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Painel - Interessados NousMEI</title>
+  <title>Painel - MEIs com Automação</title>
   <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
 </head>
 <body class="bg-gray-100 text-gray-800 font-sans">
   <div class="max-w-6xl mx-auto p-6">
-    <h1 class="text-3xl font-bold mb-6 text-center text-blue-600">📋 Interessados - NousMEI</h1>
+    <h1 class="text-3xl font-bold mb-6 text-center text-blue-600">📊 MEIs com Automação Ativa - NousMEI</h1>
 
     <div class="flex flex-wrap gap-4 mb-4 justify-between">
       <input type="text" id="search" placeholder="🔍 Buscar por nome, email ou CNPJ..." class="flex-1 p-2 border border-gray-300 rounded">
@@ -24,7 +23,8 @@
             <th class="px-4 py-2 border border-gray-200">Email</th>
             <th class="px-4 py-2 border border-gray-200">WhatsApp</th>
             <th class="px-4 py-2 border border-gray-200">CNPJ</th>
-            <th class="px-4 py-2 border border-gray-200">Data de Cadastro</th>
+            <th class="px-4 py-2 border border-gray-200">Vencimento</th>
+            <th class="px-4 py-2 border border-gray-200">Cadastro</th>
           </tr>
         </thead>
         <tbody id="tabela-dados" class="text-sm"></tbody>
@@ -51,13 +51,20 @@
       tbody.innerHTML = '';
 
       dados.forEach(item => {
+        const vencimento = item.data_vencimento
+          ? new Date(item.data_vencimento).toLocaleDateString()
+          : '-';
+
+        const cadastro = new Date(item.data_cadastro).toLocaleString();
+
         const tr = document.createElement('tr');
         tr.innerHTML = `
           <td class="px-4 py-2 border border-gray-200">${item.nome}</td>
           <td class="px-4 py-2 border border-gray-200">${item.email || '-'}</td>
           <td class="px-4 py-2 border border-gray-200">${item.whatsapp}</td>
           <td class="px-4 py-2 border border-gray-200">${item.cnpj}</td>
-          <td class="px-4 py-2 border border-gray-200">${new Date(item.data_cadastro).toLocaleString()}</td>
+          <td class="px-4 py-2 border border-gray-200">${vencimento}</td>
+          <td class="px-4 py-2 border border-gray-200">${cadastro}</td>
         `;
         tbody.appendChild(tr);
       });
@@ -65,9 +72,14 @@
 
     function exportarCSV() {
       const rows = [
-        ["Nome", "Email", "WhatsApp", "CNPJ", "Data de Cadastro"],
+        ["Nome", "Email", "WhatsApp", "CNPJ", "Data de Vencimento", "Data de Cadastro"],
         ...dadosOriginais.map(d => [
-          d.nome, d.email || '', d.whatsapp, d.cnpj, new Date(d.data_cadastro).toLocaleString()
+          d.nome,
+          d.email || '',
+          d.whatsapp,
+          d.cnpj,
+          d.data_vencimento ? new Date(d.data_vencimento).toLocaleDateString() : '',
+          new Date(d.data_cadastro).toLocaleString()
         ])
       ];
 
@@ -77,7 +89,7 @@
       const encodedUri = encodeURI(csvContent);
       const link = document.createElement("a");
       link.setAttribute("href", encodedUri);
-      link.setAttribute("download", "interessados_nousmei.csv");
+      link.setAttribute("download", "clientes_automatizados_nousmei.csv");
       document.body.appendChild(link);
       link.click();
       document.body.removeChild(link);
